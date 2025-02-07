@@ -11,9 +11,29 @@ const render404 = (url) => {
     return html.replace('${URL}', url);
 };
 
+// Function to generate JSON error response
+const generateErrorResponse = (req) => {
+    return {
+        errorCode: 404,
+        errorMsg: "Page not found",
+        requestId: req.id || 'N/A'
+    };
+};
+
+// Middleware to assign a unique request ID
+app.use((req, res, next) => {
+    req.id = Date.now(); // Simple request ID generation
+    next();
+});
+
 // Catch-all handler for all requests
 app.use((req, res, next) => {
     res.status(404).send(render404(req.originalUrl));
+});
+
+// JSON error response for API requests
+app.use((req, res) => {
+    res.status(404).json(generateErrorResponse(req));
 });
 
 app.listen(PORT, () => {
